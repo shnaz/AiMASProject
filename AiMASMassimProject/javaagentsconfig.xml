@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<javaAgentsConfig verbose="no">
+  <agents>
+  
+    <agent name="agentA1" entity="connectionA1" class="mas.agentsUnderdogs.ExplorerAgent" team="A"/>
+    <agent name="agentA2" entity="connectionA2" class="mas.agentsUnderdogs.ExplorerAgent" team="A"/>
+    <agent name="agentA3" entity="connectionA3" class="mas.agentsUnderdogs.ExplorerAgent" team="A"/>
+    <agent name="agentA4" entity="connectionA4" class="mas.agentsUnderdogs.ExplorerAgent" team="A"/>
+    <agent name="agentA5" entity="connectionA5" class="mas.agentsUnderdogs.ExplorerAgent" team="A"/>
+    <agent name="agentA6" entity="connectionA6" class="mas.agentsUnderdogs.ExplorerAgent" team="A"/>
+    <agent name="agentA7" entity="connectionA7" class="mas.agentsUnderdogs.ExplorerAgent" team="A"/>
+    <agent name="agentA8" entity="connectionA8" class="mas.agentsUnderdogs.ExplorerAgent" team="A"/>
+    
+    
+    <agent name="agentB1" entity="connectionB1" class="mas.agentsUnderdogs.ExplorerAgentB" team="B"/>
+    <agent name="agentB2" entity="connectionB2" class="mas.agentsUnderdogs.ExplorerAgentB" team="B"/>
+    <agent name="agentB3" entity="connectionB3" class="mas.agentsUnderdogs.ExplorerAgentB" team="B"/>
+    <agent name="agentB4" entity="connectionB4" class="mas.agentsUnderdogs.ExplorerAgentB" team="B"/>
+    <agent name="agentB5" entity="connectionB5" class="mas.agentsUnderdogs.ExplorerAgentB" team="B"/>
+    <agent name="agentB6" entity="connectionB6" class="mas.agentsUnderdogs.ExplorerAgentB" team="B"/>
+    <agent name="agentB7" entity="connectionB7" class="mas.agentsUnderdogs.ExplorerAgentB" team="B"/>
+    <agent name="agentB8" entity="connectionB8" class="mas.agentsUnderdogs.ExplorerAgentB" team="B"/>
+  </agents>
+  
+</javaAgentsConfig>
