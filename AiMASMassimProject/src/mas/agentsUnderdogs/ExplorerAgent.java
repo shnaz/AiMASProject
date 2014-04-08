@@ -230,11 +230,12 @@ public class ExplorerAgent extends Agent {
 	// For testing purposes
 	private void printStringToFile(String text, String filename) {
 		String path = "logfiles/"+filename;
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(
-				new FileWriter(path, true)))) {
-			out.println(text);
-		} catch (IOException e) {
-		}
+		
+//		try (PrintWriter out = new PrintWriter(new BufferedWriter(
+//				new FileWriter(path, true)))) {
+//			out.println(text);
+//		} catch (IOException e) {
+//		}
 
 	}
 	// For testing purposes
