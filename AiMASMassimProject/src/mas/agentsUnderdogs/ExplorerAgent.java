@@ -268,6 +268,7 @@ public class ExplorerAgent extends Agent {
 				+ "Explored edges: " + graph.edges.size() + "/" + numberOfEdges
 				+ "\t " + "Unvisited vertices: " + unVisited.size() + "\tProbed Vertices: "+graph.probedVertices.Length();
 		printStringToFile(status, "ExplorerAgent_Status.txt");
+		
 	}
 
 }
