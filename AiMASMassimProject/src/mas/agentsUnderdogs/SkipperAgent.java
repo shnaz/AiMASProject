@@ -5,9 +5,9 @@ import eis.iilang.Percept;
 import massim.javaagents.Agent;
 import massim.javaagents.agents.MarsUtil;
 
-public class ExplorerAgentB extends Agent {
+public class SkipperAgent extends Agent {
 
-	public ExplorerAgentB(String name, String team) {
+	public SkipperAgent(String name, String team) {
 		super(name, team);
 		// TODO do something if necessary
 	}
