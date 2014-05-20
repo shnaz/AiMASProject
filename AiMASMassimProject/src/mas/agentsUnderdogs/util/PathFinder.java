@@ -79,9 +79,9 @@ public class PathFinder {
 		{
 			
 			try {
-				graph.printToTxtFile();
-				printSetToTxtFile(goal, start.name);
-				printArrayToTxtFile(closedList.vertices);
+				//graph.printToTxtFile();
+				//printSetToTxtFile(goal, start.name);
+				//printArrayToTxtFile(closedList.vertices);
 			} catch (Exception e) {} 
 			
 			System.err.println("Goal Not Found");
@@ -94,7 +94,7 @@ public class PathFinder {
 	
 	public static void printSetToTxtFile(HashSet<String> set, String start) throws FileNotFoundException, UnsupportedEncodingException{
 		
-		PrintWriter writer = new PrintWriter("Unexplored_set.txt", "UTF-8");
+		PrintWriter writer = new PrintWriter("logfiles/Unexplored_set.txt", "UTF-8");
 		writer.println("HashSet (Vertices="+set.size()+")");
 		writer.print("Start: "+start +"\n ");
 		Iterator<String> items = set.iterator();
@@ -112,7 +112,7 @@ public class PathFinder {
 	
 	public static void printArrayToTxtFile(ArrayList<Vertex> list) throws FileNotFoundException, UnsupportedEncodingException{
 		
-		PrintWriter writer = new PrintWriter("ClosedList.txt", "UTF-8");
+		PrintWriter writer = new PrintWriter("logfiles/ClosedList.txt", "UTF-8");
 		writer.println("Closed List: (Vertices="+list.size()+")");
 		
 		for (Vertex vertex : list) {

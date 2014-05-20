@@ -14,20 +14,14 @@ import eis.iilang.Percept;
 public class ExplorerAgent extends Agent {
 	
 	// Shared graph between all agents
+	private static int agentCount = 1;	
 	private static Graph graph = new Graph(1200);
-	private static int agentCount = 1;
-	private static ArrayList<String> vipVertices = new ArrayList<String>();
-	
 	private static HashSet<String> unExplored = new HashSet<String>(800);
-	
-	
 	private static boolean done=true; //Debug
 	private static int occupiedZoneVertices=0; //Debug
 	
 	// Not-shared variables
-	private ArrayList<String> unVisited = new ArrayList<String>();
 	private ArrayList<Vertex> pathArray = new ArrayList<Vertex>();
-	private boolean isSurveyed = false;
 	private boolean lastActionFailed=false;
 	private String myPosition;
 	private String step;
@@ -210,7 +204,6 @@ public class ExplorerAgent extends Agent {
 				String vertexB = p1.getParameters().get(1).toString();
 				int edgeCost = Integer.parseInt(p1.getParameters().get(2)
 						.toString());
-				isSurveyed = true;
 
 				if (!graph.hasVertex(vertexA)) {
 					unExplored.add(vertexA);

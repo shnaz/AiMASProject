@@ -270,7 +270,7 @@ public class Graph {
 	
 	public void printToTxtFile() throws FileNotFoundException, UnsupportedEncodingException{
 		
-		PrintWriter writer = new PrintWriter("Graph.txt", "UTF-8");
+		PrintWriter writer = new PrintWriter("logfiles/Graph.txt", "UTF-8");
 		writer.println("Graph (Vertices="+this.graph.size()+", Edges="+this.edges.size()+")");
 		
 		Enumeration<String> items = graph.keys();
@@ -294,7 +294,7 @@ public class Graph {
 	
 	public void printProbedToTxtFile() throws FileNotFoundException, UnsupportedEncodingException{
 		
-		PrintWriter writer = new PrintWriter("ExplorerAgent_SortedProbedVertices.txt", "UTF-8");
+		PrintWriter writer = new PrintWriter("logfiles/ExplorerAgent_SortedProbedVertices.txt", "UTF-8");
 		writer.println("Probed vertices sorted, ascending");
 		
 		for (int i = 0; i < probedVertices.Length(); i++) {
@@ -308,7 +308,7 @@ public class Graph {
 	
 	public void printZonesToTxtFile() throws FileNotFoundException, UnsupportedEncodingException{
 		
-		PrintWriter writer = new PrintWriter("ExplorerAgent_Zones.txt", "UTF-8");
+		PrintWriter writer = new PrintWriter("logfiles/ExplorerAgent_Zones.txt", "UTF-8");
 		writer.println("Zones:");
 		
 		for (Vertex zone : valuableZones.vertices) {
