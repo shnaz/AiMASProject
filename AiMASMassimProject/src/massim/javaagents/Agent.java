@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +34,16 @@ import eis.iilang.Percept;
  *
  */
 public abstract class Agent {
-
+/*
+	// UNDERDOG SHARED STUFF
+	public static Hashtable<String, String> enemyPositions = new Hashtable<>(100);
+	public static Hashtable<String, String> alliedPositions = new Hashtable<>(100);
+	
+	// ---------------------
+	public static HashSet<String> disabledAgents = new HashSet<String>(100);
+	*/
+	
+	
 	// the name of the agent. supposed to be unique (ensured by the constructor).
 	private String name;
 	

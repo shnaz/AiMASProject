@@ -3,6 +3,7 @@ package mas.agentsUnderdogs;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 import mas.agentsUnderdogs.util.*;
 import massim.javaagents.Agent;
@@ -16,6 +17,9 @@ public class ExplorerAgent extends Agent {
 	private static Graph graph = new Graph(1200);
 	private static int agentCount = 1;
 	private static ArrayList<String> vipVertices = new ArrayList<String>();
+	
+	private static HashSet<String> unExplored = new HashSet<String>(800);
+	
 	
 	private static boolean done=true; //Debug
 	private static int occupiedZoneVertices=0; //Debug
@@ -45,7 +49,6 @@ public class ExplorerAgent extends Agent {
 
 	@Override
 	public void handlePercept(Percept p) {
-
 	}
 
 	@Override
@@ -65,7 +68,7 @@ public class ExplorerAgent extends Agent {
 			if(done){
 				try {
 					done = false;
-					unVisited.clear();
+					unExplored.clear();
 					
 					Helper.playTadaSound();
 					graph.printProbedToTxtFile();//Debugging purposes
@@ -77,7 +80,7 @@ public class ExplorerAgent extends Agent {
 		if (graph.zoneBorderVertices.size() > 0 && occupiedZoneVertices < 8) {
 			String vertexToBeOccupied = graph.popFromZoneBorderVertices();
 			if(vertexToBeOccupied != null){
-				unVisited.add(vertexToBeOccupied);
+				unExplored.add(vertexToBeOccupied);
 				occupiedZoneVertices++;
 			}
 		}
@@ -89,22 +92,17 @@ public class ExplorerAgent extends Agent {
 			return MarsUtil.rechargeAction();
 		}
 		
-		// Survey vertex if not surveyed
-		if (!isSurveyed && pathArray.isEmpty()) {
-			isSurveyed = false;
+		
+		if(!graph.isVertexSurveyed(myPosition)){
+			graph.setVertexAsSurveyed(myPosition);
+			unExplored.remove(myPosition);
 			return MarsUtil.surveyAction();
 		}
-		
+			
 		// Probe vertex if not probed
 		if(!graph.isVertexProbed(myPosition)){
+			graph.setVertexAsProbed(myPosition);
 			return MarsUtil.probeAction();
-		}
-		
-		
-		// Mark as "visited" when standing on a vertex
-		if (unVisited.contains(myPosition)) {
-			unVisited.remove(myPosition);
-			return MarsUtil.surveyAction();
 		}
 		
 		// Move from one vertex to another
@@ -113,23 +111,34 @@ public class ExplorerAgent extends Agent {
 			return MarsUtil.gotoAction(nextVertex); 
 		}
 		
-
-		if (!unVisited.isEmpty()) {
-			int size = unVisited.size();
-			String nextVertex = unVisited.get(size - 1);
-			findPathToVertex(nextVertex);			
-			return MarsUtil.skipAction();
+		// Find path to nearest unexplored vertex
+		if (!unExplored.isEmpty()) {
+			
+			findPathToTheNearestVertex();
+			String nextVertex= pathArray.remove(0).name;
+			return MarsUtil.gotoAction(nextVertex);
 		}
 		
-
 		return MarsUtil.rechargeAction();
 	}
 	
 	
-	private void findPathToVertex(String vertex){
+	private void findPathToTheNearestVertex(){
 		Vertex start = graph.getVertex(myPosition);
-		Vertex goal = graph.getVertex(vertex);
+		pathArray = PathFinder.FindPath(start, unExplored, graph);
+		String target = pathArray.get(pathArray.size()-1).name;
+		unExplored.remove(target);
+	}
+	
+	private void findPathToVertex(String goalVertex){
+		Vertex start = graph.getVertex(myPosition);
+		HashSet<String> goal = new HashSet<String>();
+		goal.add(goalVertex);
+		
 		pathArray = PathFinder.FindPath(start, goal, graph);
+		String target = pathArray.get(pathArray.size()-1).name;
+		unExplored.remove(target);
+		
 	}
 
 	@SuppressWarnings({ "deprecation" })
@@ -204,10 +213,10 @@ public class ExplorerAgent extends Agent {
 				isSurveyed = true;
 
 				if (!graph.hasVertex(vertexA)) {
-					unVisited.add(vertexA);
+					unExplored.add(vertexA);
 				}
 				if (!graph.hasVertex(vertexB)) {
-					unVisited.add(vertexB);
+					unExplored.add(vertexB);
 				}
 				graph.addEdge(vertexA, edgeCost, vertexB);
 
@@ -231,25 +240,16 @@ public class ExplorerAgent extends Agent {
 	private void printStringToFile(String text, String filename) {
 		String path = "logfiles/"+filename;
 		
-//		try (PrintWriter out = new PrintWriter(new BufferedWriter(
-//				new FileWriter(path, true)))) {
-//			out.println(text);
-//		} catch (IOException e) {
-//		}
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(
+				new FileWriter(path, true)))) {
+			out.println(text);
+		} catch (IOException e) {
+		}
 
 	}
 	// For testing purposes
 	public void resetLogFiles(){
 		if(agentID==1)
-			vipVertices.add("v33");
-			vipVertices.add("v135");
-			vipVertices.add("v214");
-			vipVertices.add("v100");
-			vipVertices.add("v387");
-			vipVertices.add("v182");
-			vipVertices.add("v41");
-			vipVertices.add("v314");
-
 			try {
 				new FileOutputStream("logfiles/ExplorerAgent_PathLog.txt").close();
 				new FileOutputStream("logfiles/ExplorerAgent_ProbeAction.txt").close();
@@ -267,7 +267,7 @@ public class ExplorerAgent extends Agent {
 	public void printLogFile() {
 		String status = "Step:"+step+"\tExplored vertices: " + graph.graph.size() + "\t"
 				+ "Explored edges: " + graph.edges.size() + "/" + numberOfEdges
-				+ "\t " + "Unvisited vertices: " + unVisited.size() + "\tProbed Vertices: "+graph.probedVertices.Length();
+				+ "\t Unexplored vertices: " + unExplored.size() + "\tProbed Vertices: "+graph.probedVertices.Length();
 		printStringToFile(status, "ExplorerAgent_Status.txt");
 		
 	}

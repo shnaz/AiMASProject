@@ -9,6 +9,9 @@ public class Vertex implements Comparable<Vertex>{
 	public ArrayList<Vertex> adj;
 	public int cost;
 	public Vertex parent;
+	
+	public boolean isSurveyed = false;
+	public boolean isProbed = false;
 		
 	public Vertex() {
 		this.adj = new ArrayList<Vertex>();

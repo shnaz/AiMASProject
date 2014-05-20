@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -130,7 +129,23 @@ public class Graph {
 	}
 	
 	public boolean isVertexProbed(String vertexName){
-		return getVertex(vertexName).cost != 0;
+		return getVertex(vertexName).isProbed;
+	}
+	
+	public boolean isVertexSurveyed(String vertexName){
+		return getVertex(vertexName).isSurveyed;
+	}
+	
+	public void setVertexAsSurveyed(String vertexName){
+		Vertex v = this.graph.remove(vertexName);
+		v.isSurveyed = true;
+		addVertex(v);
+	}
+	
+	public void setVertexAsProbed(String vertexName){
+		Vertex v = this.graph.remove(vertexName);
+		v.isProbed = true;
+		addVertex(v);
 	}
 	
 	
@@ -161,7 +176,6 @@ public class Graph {
 						zone.adj.add(neighsNeigh);
 						visited.add(neighsNeigh.name);
 					}
-
 				}
 			}
 			valuableZones.Push(zone);
@@ -172,12 +186,12 @@ public class Graph {
 	}
 	
 	public void chooseTheMostValuableZone() {
-		
+		/*
 		for (Vertex v : valuableZones.vertices) {
 			if(v.adj.size()>16)
 				valuableZones.Remove(v);
 		}
-		
+		*/
 		
 		for (Vertex b : getMostValuableZone().adj) {
 			zoneBorderVertices.add(b.name);

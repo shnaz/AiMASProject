@@ -1,6 +1,12 @@
 package mas.agentsUnderdogs.util;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
 
 
 public class PathFinder {
@@ -22,7 +28,7 @@ public class PathFinder {
 		return path;
 	}
 	
-	public static ArrayList<Vertex> FindPath(Vertex start, Vertex goal,Graph graph) 
+	public static ArrayList<Vertex> FindPath(Vertex start, HashSet<String> goal, Graph graph) 
 	{
 		closedList = new PriorityQueue();
 		openList = new PriorityQueue();
@@ -36,7 +42,7 @@ public class PathFinder {
 			currentVertex = openList.First();
 			closedList.Push(currentVertex);
 			// Check if the current node is the goal node
-			if(currentVertex.name.equals(goal.name))
+			if(goal.contains(currentVertex.name))
 			{
 				return CalculatePath(currentVertex);
 			}
@@ -58,6 +64,7 @@ public class PathFinder {
 					closedList.Remove(neighbourVertex);
 				}
 				
+				
 				if( !openList.Contains(neighbourVertex) && !closedList.Contains(neighbourVertex))
 				{
 					neighbourVertex.cost = cost;
@@ -68,13 +75,53 @@ public class PathFinder {
 			}	
 		}
 		
-		if(currentVertex.name != goal.name) 
+		if(!goal.contains(currentVertex.name)) 
 		{
+			
+			try {
+				graph.printToTxtFile();
+				printSetToTxtFile(goal, start.name);
+				printArrayToTxtFile(closedList.vertices);
+			} catch (Exception e) {} 
+			
 			System.err.println("Goal Not Found");
 			return null;
 		}
+
 		
 		return CalculatePath(currentVertex);
 	}
+	
+	public static void printSetToTxtFile(HashSet<String> set, String start) throws FileNotFoundException, UnsupportedEncodingException{
+		
+		PrintWriter writer = new PrintWriter("Unexplored_set.txt", "UTF-8");
+		writer.println("HashSet (Vertices="+set.size()+")");
+		writer.print("Start: "+start +"\n ");
+		Iterator<String> items = set.iterator();
+
+		while(items.hasNext()){
+			
+			String vertex = items.next();
+			writer.print(vertex +"\n ");
+			
+		}
+		writer.println("-------End of file-------");
+		writer.close();
+
+	}
+	
+	public static void printArrayToTxtFile(ArrayList<Vertex> list) throws FileNotFoundException, UnsupportedEncodingException{
+		
+		PrintWriter writer = new PrintWriter("ClosedList.txt", "UTF-8");
+		writer.println("Closed List: (Vertices="+list.size()+")");
+		
+		for (Vertex vertex : list) {
+			writer.print(vertex.name +"\n ");
+		}
+		writer.println("-------End of file-------");
+		writer.close();
+	}
+	
+	
 
 }
