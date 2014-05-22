@@ -19,14 +19,14 @@ public class SimpleSkippingAgent extends Agent {
 
 	@Override
 	public Action step() {
-		
+		/*
 		Collection<Percept> percepts = getAllPercepts();
 		for(Percept p : percepts){
 			if(p.getName().equals("position")){
 				println("I'm at "+p.getParameters().get(0).toString());
 			}
 		}
-		
+		*/
 		return MarsUtil.skipAction();
 		
 	}
