@@ -1,6 +1,8 @@
 package massim.javaagents;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 import mas.agentsUnderdogs.util.Graph;
+import mas.agentsUnderdogs.util.PathFinder;
+import mas.agentsUnderdogs.util.Vertex;
 import apltk.interpreter.data.Belief;
 import apltk.interpreter.data.LogicBelief;
 import apltk.interpreter.data.LogicGoal;
@@ -35,7 +39,7 @@ import eis.iilang.Percept;
  *
  */
 public abstract class Agent {
-	
+
 	// UNDERDOG ----------- SHARED STUFF
 	public static int agentCount = 1;	
 	public static Graph graph = new Graph(1200);
@@ -43,28 +47,59 @@ public abstract class Agent {
 	public static Hashtable<String, String> enemyPositions = new Hashtable<>(50);
 	public static Hashtable<String, String> alliedPositions= new Hashtable<>(50);
 	public static HashSet<String> 			disabledAgents = new HashSet<String>(50);
-	
+
 	public static boolean done=true; //Debug
 	public static int occupiedZoneVertices=0; //Debug
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+	public String getADisabledAgent(){
+		ArrayList<String> disAgents = new ArrayList<String>(Arrays.asList(disabledAgents.toArray(new String[disabledAgents.size()])));
+		disabledAgents.remove(disAgents.get(0));
+		return disAgents.get(0);
+	}
+
+	public ArrayList<Vertex> findPathToTheNearestVertex(String myPosition) {
+		Vertex start = graph.getVertex(myPosition);
+		ArrayList<Vertex> myPathArray = PathFinder.FindPath(start, graph.unExplored, graph);
+		if(myPathArray!=null){
+			String target = myPathArray.get(myPathArray.size() - 1).name;
+			graph.unExplored.remove(target);
+		}
+
+		return myPathArray;
+
+	}
+
+	public  ArrayList<Vertex> findPathToVertex(String myPosition, String goalVertex) {
+		Vertex start = graph.getVertex(myPosition);
+		HashSet<String> goal = new HashSet<String>();
+		goal.add(goalVertex);
+		ArrayList<Vertex> myPathArray = PathFinder.FindPath(start, goal, graph);
+		if(myPathArray!=null){
+			String target = myPathArray.get(myPathArray.size() - 1).name;
+			graph.unExplored.remove(target);
+		}
+		return myPathArray;
+
+	}
+
+
+
+
+
+
 	// ---------------------DONT TOUCH ANYTHING BELOW THIS LINE
-	
-	
+
+
 	// the name of the agent. supposed to be unique (ensured by the constructor).
 	private String name;
-	
+
 	// the team of the agent. this is required for comminication.
 	private String team;
-	
-//	private boolean printMind = false;
-	
+
+	//	private boolean printMind = false;
+
 	// agent specific stuff
 	protected Set<LogicBelief> beliefs; // what the agent knows about the world
 	protected Set<LogicGoal> goals; // what the agent wants to achieve in the world
@@ -75,11 +110,11 @@ public abstract class Agent {
 	private static Collection<Message> messages; // messages
 	private static Map<String,String> agentsTeams;
 	static {
-    	agents = new LinkedList<String>();
-    	messages = new LinkedList<Message>();
-    	agentsTeams = new HashMap<String,String>();
+		agents = new LinkedList<String>();
+		messages = new LinkedList<Message>();
+		agentsTeams = new HashMap<String,String>();
 	}
-	
+
 	/**
 	 * Initializes an agent with a given name. Ensures that the name is unique.
 	 * @param name is the name of the agent
@@ -88,16 +123,16 @@ public abstract class Agent {
 	public Agent(String name, String team) {
 		this.name = name;
 		this.team = team;
-		
+
 		if ( agents.contains(name) ) 
 			throw new AssertionError("duplicate agent name \"" + name);
 		agents.add(name);
-		
+
 		beliefs = new HashSet<LogicBelief>();
 		goals = new HashSet<LogicGoal>();
-		
+
 		agentsTeams.put(name, team);
-		
+
 	}
 
 	/**
@@ -115,7 +150,7 @@ public abstract class Agent {
 	public String getTeam() {
 		return team;
 	}
-	
+
 	/**
 	 * Yields an instance of a specified agent-class with a given name. This uses Java-reflection and assumes
 	 * that the class is already in the classpath.
@@ -126,18 +161,18 @@ public abstract class Agent {
 	 * @return an agent-instance 
 	 */
 	static public Agent createAgentFromClass(String agentName, String team, String agentClass) {
-	
+
 		// 1. retrieve a class loader
 		ClassLoader classLoader = Agent.class.getClassLoader();
 
 		// 2. load the class
 		Class<?> aClass = null;
-	    try {
-	        aClass = classLoader.loadClass(agentClass);
-	        System.out.println("instance of \"" + aClass.getName() + "\" created");
-	    } catch (ClassNotFoundException e) {
-	        e.printStackTrace();
-	    }
+		try {
+			aClass = classLoader.loadClass(agentClass);
+			System.out.println("instance of \"" + aClass.getName() + "\" created");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 
 		// 3.  get an instance of the class
 		Constructor<?> c = null;
@@ -154,7 +189,7 @@ public abstract class Agent {
 
 		//ret.name = agentName;
 		return ret;
-		
+
 	}
 
 	/**
@@ -165,7 +200,7 @@ public abstract class Agent {
 	public static void setEnvironmentInterface(EnvironmentInterfaceStandard theEI) {
 		ei = theEI;
 	}
-	
+
 	/**
 	 * Yields the environment-interface that all agents access.
 	 * @return
@@ -173,21 +208,21 @@ public abstract class Agent {
 	public static EnvironmentInterfaceStandard getEnvironmentInterface() {
 		return ei;
 	}
-	
+
 	/**
 	 * Executes one step of the agent. This method is assumed to terminate in appropriate time.
 	 */
 	public abstract Action step();
-	
+
 	/**
 	 * Prints an arbitrary object, e.g. a String, to the standard-out. 
 	 * Should be used for debugging purposes only.
 	 * @param obj
 	 */
 	protected final void println(Object obj) {
-		
+
 		System.out.println("Agent " + name + ": " + obj);
-		
+
 	}
 
 	/**
@@ -196,13 +231,13 @@ public abstract class Agent {
 	 * @return the belief-base
 	 */
 	public final Collection<LogicBelief> getBeliefBase() {
-		
+
 		Collection<LogicBelief> ret = new LinkedList<LogicBelief>();
 		ret.addAll(beliefs);
 		return ret;
 
 	}	
-	
+
 	/**
 	 * Yields the goal-base of the agent.
 	 * 
@@ -215,23 +250,23 @@ public abstract class Agent {
 		return ret;
 
 	}
-	
+
 	int oldStep = 100000;
-	
+
 	/**
 	 * Yields all percepts that are currently available.
 	 * 
 	 * @return a list of percepts or an empty-list if perceiving failed
 	 */
 	protected Collection<Percept> getAllPercepts() {
-		
+
 		try {
 			Map<String, Collection<Percept>> percepts = ei.getAllPercepts(getName());
 			Collection<Percept> ret = new LinkedList<Percept>();
 			for ( Collection<Percept> ps : percepts.values() ) {
 				ret.addAll(ps);
 			}
-			
+
 			// sweep mental attitudes if there has been a restart 
 			// TODO maybe use simulation-id
 			int step = -1;
@@ -248,7 +283,7 @@ public abstract class Agent {
 			}
 			if ( step != -1 )
 				oldStep = step;
-			
+
 			return ret;
 		} catch (PerceiveException e) {
 			//e.printStackTrace();
@@ -259,9 +294,9 @@ public abstract class Agent {
 			println("error perceiving \"" + e.getMessage() + "\"");	
 			return new LinkedList<Percept>();
 		}
-		
+
 	}
-	
+
 	/**
 	 * Gets all messages that were sent to the agent. After calling this method
 	 * the messages will be removed from the message-box.
@@ -269,9 +304,9 @@ public abstract class Agent {
 	 * @return all messages
 	 */
 	protected final Collection<Message> getMessages() {
-	
+
 		Collection<Message> ret = new LinkedList<Message>();
-		
+
 		for ( Message m : messages ) {
 			if ( m.receiver.equals(getName()) ) {
 				ret.add(m);
@@ -279,11 +314,11 @@ public abstract class Agent {
 		}
 
 		messages.removeAll(ret);
-		
+
 		return ret;
-		
+
 	}
-	
+
 	/**
 	 * Sends a message to a specific agent in the team.
 	 * 
@@ -291,18 +326,18 @@ public abstract class Agent {
 	 * @param receiver the recipient of the message
 	 */
 	public final void sendMessage(Belief belief, String receiver) {
-		
+
 		Message msg = new Message();
-		
+
 		msg.value = belief;
 		msg.sender = getName();
 		msg.receiver = receiver;
-		
+
 		if ( agentsTeams.get(receiver).equals(team) == false ) {
 			System.out.println("cannot send a message to an agent from another team");
 		}
 		messages.add(msg);
-		
+
 	}
 
 	/**
@@ -311,15 +346,15 @@ public abstract class Agent {
 	 * @param msg the message to be broadcasted
 	 */
 	public final void broadcastBelief(LogicBelief belief) {
-	
+
 		for ( String ag : agents ) {
 			if ( ag.equals(getName())) continue;
 			if ( agentsTeams.get(ag).equals(team) == false ) continue;
 			sendMessage(belief,ag);
 		}
-		
+
 	}
-	
+
 	/**
 	 * This method is called if the environment-interface sends a
 	 * percept as a notification. Note, that sending percepts-via-notifications
@@ -329,31 +364,31 @@ public abstract class Agent {
 	 * @param p the percept to be handled
 	 */
 	public abstract void handlePercept(Percept p);
-	
+
 	@Override
 	public boolean equals(Object obj) {
-		
+
 		if ( obj == null )
 			return false;
-		
+
 		if ( obj == this )
 			return true;
-		
+
 		if ( obj.getClass().equals(this.getClass()) == false )
 			return false;
-		
+
 		if ( ((Agent)obj).getName().equals(getName()) )
-				return true;
-		
+			return true;
+
 		return false;
-		
+
 	}
-	
+
 	@Override
 	public int hashCode() {
-		
+
 		return name.hashCode();
-		
+
 	}
 
 	/**
@@ -364,60 +399,60 @@ public abstract class Agent {
 	 * @return a list of beliefs that have the given predicate
 	 */
 	public LinkedList<LogicBelief> getAllBeliefs(String predicate) {
-		
+
 		LinkedList<LogicBelief> ret = new LinkedList<LogicBelief>();
-		
+
 		for ( LogicBelief b : beliefs ) {
 			if ( b.getPredicate().equals(predicate) )
 				ret.add(b);
 		}
-		
+
 		return ret;
-		
+
 	}
-	
+
 	/**
 	 * Removes all beliefs from the belief-base that have a given predicate.
 	 * @param predicate the given predicate
 	 */
 	public void removeBeliefs(String predicate) {
-		
+
 		LinkedList<LogicBelief> remove = new LinkedList<LogicBelief>();
-		
+
 		for ( LogicBelief b : beliefs ) {
 			if ( b.getPredicate().equals(predicate) )
 				remove.add(b);
 		}
-	
+
 		beliefs.removeAll(remove);
-		
+
 	}
-	
+
 	/**
 	 * Removes all goals that have a given predicate.
 	 * @param predicate the given predicate
 	 */
 	protected void removeGoals(String predicate) {
-		
+
 		LinkedList<LogicGoal> remove = new LinkedList<LogicGoal>();
-		
+
 		for ( LogicGoal g : goals ) {
 			if ( g.getPredicate().equals(predicate) )
 				remove.add(g);
 		}
-	
+
 		goals.removeAll(remove);
-		
+
 	}
 
 	public void addBelief(LogicBelief belief) {
 		beliefs.add(belief);
 	}
-	
+
 	public void addGoal(LogicGoal goal) {
 		goals.add(goal);
 	}
-	
+
 	public boolean containsBelief(LogicBelief belief) {
 		return beliefs.contains(belief);
 	}
@@ -425,11 +460,11 @@ public abstract class Agent {
 	protected boolean containsGoal(LogicGoal goal) {
 		return goals.contains(goal);
 	}
-	
+
 	protected void clearBeliefs() {
 		beliefs.clear();
 	}
-	
+
 	public void clearGoals() {
 		goals.clear();
 	}
