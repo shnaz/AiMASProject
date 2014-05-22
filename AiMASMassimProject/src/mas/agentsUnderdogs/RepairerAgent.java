@@ -116,23 +116,23 @@ public class RepairerAgent extends Agent {
 		return MarsUtil.rechargeAction();
 	}
 
-//	private void findPathToTheNearestVertex() {
-//		Vertex start = graph.getVertex(myPosition);
-//		myPathArray = PathFinder.FindPath(start, graph.unExplored, graph);
-//		String target = myPathArray.get(myPathArray.size() - 1).name;
-//		graph.unExplored.remove(target);
-//	}
-//
-//	private void findPathToVertex(String goalVertex) {
-//		Vertex start = graph.getVertex(myPosition);
-//		HashSet<String> goal = new HashSet<String>();
-//		goal.add(goalVertex);
-//
-//		myPathArray = PathFinder.FindPath(start, goal, graph);
-//		String target = myPathArray.get(myPathArray.size() - 1).name;
-//		graph.unExplored.remove(target);
-//
-//	}
+	private void findPathToTheNearestVertex() {
+		Vertex start = graph.getVertex(myPosition);
+		myPathArray = PathFinder.FindPath(start, graph.unExplored, graph);
+		String target = myPathArray.get(myPathArray.size() - 1).name;
+		graph.unExplored.remove(target);
+	}
+
+	private void findPathToVertex(String goalVertex) {
+		Vertex start = graph.getVertex(myPosition);
+		HashSet<String> goal = new HashSet<String>();
+		goal.add(goalVertex);
+
+		myPathArray = PathFinder.FindPath(start, goal, graph);
+		String target = myPathArray.get(myPathArray.size() - 1).name;
+		graph.unExplored.remove(target);
+
+	}
 
 	@SuppressWarnings({ "deprecation" })
 	private void handleAllPercept() {
@@ -200,12 +200,12 @@ public class RepairerAgent extends Agent {
 
 	// For testing purposes
 	private void printStringToFile(String text, String filename) {
-		String path = "logfiles/" + filename;
-
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(
-				new FileWriter(path, true)))) {
-			out.println(text);
-		} catch (IOException e) {
-		}
+//		String path = "logfiles/" + filename;
+//
+//		try (PrintWriter out = new PrintWriter(new BufferedWriter(
+//				new FileWriter(path, true)))) {
+//			out.println(text);
+//		} catch (IOException e) {
+//		}
 	}
 }

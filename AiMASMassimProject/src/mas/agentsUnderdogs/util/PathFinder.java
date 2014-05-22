@@ -78,12 +78,6 @@ public class PathFinder {
 		if(!goal.contains(currentVertex.name)) 
 		{
 			
-			try {
-				//graph.printToTxtFile();
-				//printSetToTxtFile(goal, start.name);
-				//printArrayToTxtFile(closedList.vertices);
-			} catch (Exception e) {} 
-			
 			System.err.println("Goal Not Found");
 			return null;
 		}

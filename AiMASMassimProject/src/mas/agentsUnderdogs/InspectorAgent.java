@@ -56,7 +56,6 @@ public class InspectorAgent extends Agent {
 			myPost = graph.popFromZoneBorderVertices();
 			if(myPost != null){
 				findPathToVertex(myPost);
-				occupiedZoneVertices++;
 			}
 		}
 

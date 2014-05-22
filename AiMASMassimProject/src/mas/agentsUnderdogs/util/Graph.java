@@ -123,12 +123,12 @@ public class Graph {
 			if(weight==10){
 				valuableVertices.add(vertex);
 			}
+			
+			if(probedVertices.size()==400){
+				findValuabeZones();
+			}
 		}
-		
-		if(probedVertices.size()==400){
-			findValuabeZones();
-		}
-		
+
 	}
 	
 	public int getVertexWeight(String vertexName){
@@ -193,15 +193,19 @@ public class Graph {
 	}
 	
 	public void chooseTheMostValuableZone() {
-		
-		for (Vertex v : valuableZones.vertices) {
-			if(v.adj.size()>16)
-				valuableZones.Remove(v);
-		}
-		
-		
+
 		for (Vertex b : getMostValuableZone().adj) {
 			zoneBorderVertices.add(b.name);
+		}
+		
+//		ArrayList<String> duplicate = new ArrayList<String>();
+//		duplicate.addAll(zoneBorderVertices);
+//		Collections.shuffle(duplicate);
+//		zoneBorderVertices.addAll(duplicate);
+		
+		String zoneCenter = getMostValuableZone().name;
+		for (int i = 0; i < 28; i++) {
+			zoneBorderVertices.add(zoneCenter);
 		}
 		
 		
@@ -209,28 +213,45 @@ public class Graph {
 	
 	public String popFromZoneBorderVertices() {
 		
-		if(zoneBorderVertices.size()>0){
+		if(!zoneBorderVertices.isEmpty()){
 			String borderVertex = zoneBorderVertices.remove(0);
 			//trimBorder(borderVertex);
 			return borderVertex;
+			
+		} else {
+			
+			return getMostValuableZone().name;
 		}
-		
-		return null;
+
 	}
 	
-	private void trimBorder(String vertex){
-		ArrayList<String> temp = new ArrayList<String>(zoneBorderVertices);
-		zoneBorderVertices.clear();
-		Vertex takenVertex = this.graph.get(vertex);
-		
-		for (String borderVertex : temp) {
-			if(!takenVertex.hasNeighbour(borderVertex)){
-				zoneBorderVertices.add(borderVertex);
-			}
-				
-		}
-		
-	}
+//	public String popFromZoneBorderVertices() {
+//		
+//		if(!zoneBorderVertices.isEmpty()){
+//			String borderVertex = zoneBorderVertices.remove(0);
+//			//trimBorder(borderVertex);
+//			return borderVertex;
+//			
+//		} else {
+//			
+//			return getMostValuableZone().name;
+//		}
+//
+//	}
+	
+//	private void trimBorder(String vertex){
+//		ArrayList<String> temp = new ArrayList<String>(zoneBorderVertices);
+//		zoneBorderVertices.clear();
+//		Vertex takenVertex = this.graph.get(vertex);
+//		
+//		for (String borderVertex : temp) {
+//			if(!takenVertex.hasNeighbour(borderVertex)){
+//				zoneBorderVertices.add(borderVertex);
+//			}
+//				
+//		}
+//		
+//	}
 	
 	
 	public boolean vertexHasNeighbour(String vertexName, String neighbourName){
