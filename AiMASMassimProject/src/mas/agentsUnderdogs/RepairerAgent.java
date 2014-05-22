@@ -51,11 +51,43 @@ public class RepairerAgent extends Agent {
 			lastActionFailed = false;
 			return lastActionObj;
 		}
+//		
+//		//IF REPAIR
+//		if(!disabledAgents.isEmpty()){
+//			alliedPositions.get(disabledAgents);
+//			try {
+//				
+//				findPathToVertex(alliedPositions.get(disableAgents.get(0)));
+//				if(!pathArray.isEmpty()){
+//					repairing = true;
+//					String nextVertex= pathArray.remove(0).name;
+//					disableAgents.remove(0);
+//					return MarsUtil.gotoAction(nextVertex);
+//				}
+//			} catch (Exception e) {
+//				// TODO: handle exception
+//			}
+//			
+//			try {
+//				if(!pathArray.isEmpty()){
+//					String nextVertex= pathArray.remove(0).name;
+//					return MarsUtil.gotoAction(nextVertex);
+//				}
+//			} catch (Exception e) {
+//				// TODO: handle exception
+//			}
+//			
+//			
+//		}
+		
+		
+		
+		
 
 		if (!graph.zoneBorderVertices.isEmpty() && myPost == null ) {
 			myPost = graph.popFromZoneBorderVertices();
 			if(myPost != null){
-				findPathToVertex(myPost);
+				myPathArray = findPathToVertex(myPosition, myPost);
 				occupiedZoneVertices++;
 			}
 		}
@@ -76,7 +108,7 @@ public class RepairerAgent extends Agent {
 
 		// Find path to nearest unexplored vertex
 		if (!graph.unExplored.isEmpty()) {
-			findPathToTheNearestVertex();
+			myPathArray = findPathToTheNearestVertex(myPosition);
 			String nextVertex = myPathArray.remove(0).name;
 			return MarsUtil.gotoAction(nextVertex);
 		}
@@ -84,23 +116,23 @@ public class RepairerAgent extends Agent {
 		return MarsUtil.rechargeAction();
 	}
 
-	private void findPathToTheNearestVertex() {
-		Vertex start = graph.getVertex(myPosition);
-		myPathArray = PathFinder.FindPath(start, graph.unExplored, graph);
-		String target = myPathArray.get(myPathArray.size() - 1).name;
-		graph.unExplored.remove(target);
-	}
-
-	private void findPathToVertex(String goalVertex) {
-		Vertex start = graph.getVertex(myPosition);
-		HashSet<String> goal = new HashSet<String>();
-		goal.add(goalVertex);
-
-		myPathArray = PathFinder.FindPath(start, goal, graph);
-		String target = myPathArray.get(myPathArray.size() - 1).name;
-		graph.unExplored.remove(target);
-
-	}
+//	private void findPathToTheNearestVertex() {
+//		Vertex start = graph.getVertex(myPosition);
+//		myPathArray = PathFinder.FindPath(start, graph.unExplored, graph);
+//		String target = myPathArray.get(myPathArray.size() - 1).name;
+//		graph.unExplored.remove(target);
+//	}
+//
+//	private void findPathToVertex(String goalVertex) {
+//		Vertex start = graph.getVertex(myPosition);
+//		HashSet<String> goal = new HashSet<String>();
+//		goal.add(goalVertex);
+//
+//		myPathArray = PathFinder.FindPath(start, goal, graph);
+//		String target = myPathArray.get(myPathArray.size() - 1).name;
+//		graph.unExplored.remove(target);
+//
+//	}
 
 	@SuppressWarnings({ "deprecation" })
 	private void handleAllPercept() {
