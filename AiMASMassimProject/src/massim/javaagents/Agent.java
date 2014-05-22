@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import mas.agentsUnderdogs.util.Graph;
 import apltk.interpreter.data.Belief;
 import apltk.interpreter.data.LogicBelief;
 import apltk.interpreter.data.LogicGoal;
@@ -34,14 +35,26 @@ import eis.iilang.Percept;
  *
  */
 public abstract class Agent {
-/*
-	// UNDERDOG SHARED STUFF
-	public static Hashtable<String, String> enemyPositions = new Hashtable<>(100);
-	public static Hashtable<String, String> alliedPositions = new Hashtable<>(100);
 	
-	// ---------------------
-	public static HashSet<String> disabledAgents = new HashSet<String>(100);
-	*/
+	// UNDERDOG ----------- SHARED STUFF
+	public static int agentCount = 1;	
+	public static Graph graph = new Graph(1200);
+
+	public static Hashtable<String, String> enemyPositions = new Hashtable<>(50);
+	public static Hashtable<String, String> alliedPositions= new Hashtable<>(50);
+	public static HashSet<String> 			disabledAgents = new HashSet<String>(50);
+	
+	public static boolean done=true; //Debug
+	public static int occupiedZoneVertices=0; //Debug
+	
+	
+	
+	
+	
+	
+	
+	
+	// ---------------------DONT TOUCH ANYTHING BELOW THIS LINE
 	
 	
 	// the name of the agent. supposed to be unique (ensured by the constructor).
@@ -73,7 +86,6 @@ public abstract class Agent {
 	 * @param team is the team of the agent
 	 */
 	public Agent(String name, String team) {
-		
 		this.name = name;
 		this.team = team;
 		

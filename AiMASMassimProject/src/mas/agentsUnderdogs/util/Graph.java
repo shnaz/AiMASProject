@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -15,11 +16,14 @@ public class Graph {
 	
 	public Hashtable<String, Vertex> graph;
 	public Set<String> edges;
-	public PriorityQueue probedVertices = new PriorityQueue();
-	public PriorityQueue valuableZones = new PriorityQueue();
+	public ArrayList<Vertex> probedVertices = new ArrayList<Vertex>();
 	public int numberOfVertices;
-	public ArrayList<Vertex> unProbedVertices = new ArrayList<Vertex>();
 	
+	public HashSet<String> unExplored = new HashSet<String>(800);
+	public HashSet<String> unProbed = new HashSet<String>(800);
+	
+	
+	public PriorityQueue valuableZones = new PriorityQueue();
 	public ArrayList<Vertex> valuableVertices = new ArrayList<Vertex>();
 	public ArrayList<String> zoneBorderVertices = new ArrayList<String>();
 	
@@ -42,6 +46,9 @@ public class Graph {
 			Vertex newVertex = new Vertex(vertexName);
 			this.graph.put(vertexName, newVertex);
 			this.numberOfVertices++;
+			
+			this.unExplored.add(newVertex.name);
+			this.unProbed.add(newVertex.name);
 		}
 	}
 	
@@ -110,15 +117,15 @@ public class Graph {
 		vertex.cost = weight;
 		addVertex(vertex);
 		
-		if(!probedVertices.Contains(vertex)){
-			probedVertices.Push(vertex);
+		if(!probedVertices.contains(vertex)){
+			probedVertices.add(vertex);
 			
 			if(weight==10){
 				valuableVertices.add(vertex);
 			}
 		}
 		
-		if(probedVertices.Length()==400){
+		if(probedVertices.size()==400){
 			findValuabeZones();
 		}
 		
@@ -186,12 +193,12 @@ public class Graph {
 	}
 	
 	public void chooseTheMostValuableZone() {
-		/*
+		
 		for (Vertex v : valuableZones.vertices) {
 			if(v.adj.size()>16)
 				valuableZones.Remove(v);
 		}
-		*/
+		
 		
 		for (Vertex b : getMostValuableZone().adj) {
 			zoneBorderVertices.add(b.name);
@@ -204,7 +211,7 @@ public class Graph {
 		
 		if(zoneBorderVertices.size()>0){
 			String borderVertex = zoneBorderVertices.remove(0);
-			trimBorder(borderVertex);
+			//trimBorder(borderVertex);
 			return borderVertex;
 		}
 		
@@ -296,10 +303,10 @@ public class Graph {
 		
 		PrintWriter writer = new PrintWriter("logfiles/ExplorerAgent_SortedProbedVertices.txt", "UTF-8");
 		writer.println("Probed vertices sorted, ascending");
-		
-		for (int i = 0; i < probedVertices.Length(); i++) {
-			writer.print(probedVertices.vertices.get(i).name+"\t");
-			writer.println(probedVertices.vertices.get(i).cost);
+		Collections.sort(this.probedVertices);
+		for (int i = 0; i < probedVertices.size(); i++) {
+			writer.print(probedVertices.get(i).name+"\t");
+			writer.println(probedVertices.get(i).cost);
 		}
 
 		writer.close();

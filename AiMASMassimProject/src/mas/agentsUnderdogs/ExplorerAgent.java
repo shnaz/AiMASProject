@@ -13,30 +13,34 @@ import eis.iilang.Percept;
 
 public class ExplorerAgent extends Agent {
 	
+	/*
 	// Shared graph between all agents
 	private static int agentCount = 1;	
 	private static Graph graph = new Graph(1200);
 	private static HashSet<String> unExplored = new HashSet<String>(800);
 	private static boolean done=true; //Debug
 	private static int occupiedZoneVertices=0; //Debug
-	
+	*/
 	// Not-shared variables
-	private ArrayList<Vertex> pathArray = new ArrayList<Vertex>();
-	private boolean lastActionFailed=false;
-	private String myPosition;
 	private String step;
+	private int numberOfEdges;
+	
+	private ArrayList<Vertex> myPathArray = new ArrayList<Vertex>();
+	private String myPosition;
+	private int myEnergy;
+	private int myAgentID;
+	private String myPost=null;
+
 	private String lastAction;
 	private String lastActionResult;
 	private String lastActionParam;
 	private Action lastActionObj;
-	private int numberOfEdges;
-	private int energy;
-	private int agentID;
+	private boolean lastActionFailed=false;
 
 	public ExplorerAgent(String name, String team) {
 		super(name, team);
-		agentID = agentCount++;
-		printStringToFile("#Initialized agent nr: " + agentID,
+		myAgentID = agentCount++;
+		printStringToFile("#Initialized agent nr: " + myAgentID,
 				"ExplorerAgent.txt");
 		resetLogFiles();
 	}
@@ -56,13 +60,20 @@ public class ExplorerAgent extends Agent {
 			lastActionFailed = false;
 			return lastActionObj;
 		}
-
+		
+		if(graph.edges.size() == numberOfEdges){
+			try {
+				graph.printToTxtFile();
+			} catch (Exception e1) {
+			} 
+		}
+		
 		// When all vertex weights are known - TODO maybe delete?
-		if (graph.probedVertices.Length() == 400) {
+		if (graph.probedVertices.size() == 400) {
 			if(done){
 				try {
 					done = false;
-					unExplored.clear();
+					graph.unExplored.clear();
 					
 					Helper.playTadaSound();
 					graph.printProbedToTxtFile();//Debugging purposes
@@ -71,10 +82,18 @@ public class ExplorerAgent extends Agent {
 			}
 		}
 		
-		if (graph.zoneBorderVertices.size() > 0 && occupiedZoneVertices < 8) {
-			String vertexToBeOccupied = graph.popFromZoneBorderVertices();
-			if(vertexToBeOccupied != null){
-				unExplored.add(vertexToBeOccupied);
+//		if (graph.zoneBorderVertices.size() > 0 && occupiedZoneVertices < 8) {
+//			String vertexToBeOccupied = graph.popFromZoneBorderVertices();
+//			if(vertexToBeOccupied != null){
+//				graph.unExplored.add(vertexToBeOccupied);
+//				occupiedZoneVertices++;
+//			}
+//		}
+		
+		if (!graph.zoneBorderVertices.isEmpty() && myPost == null ) {
+			myPost = graph.popFromZoneBorderVertices();
+			if(myPost != null){
+				findPathToVertex(myPost);
 				occupiedZoneVertices++;
 			}
 		}
@@ -82,17 +101,20 @@ public class ExplorerAgent extends Agent {
 		printLogFile(); // For debuging purposes
 		
 		// Recharge when flat
-		if (energy < 10) {
+		if (myEnergy < 10) {
 			return MarsUtil.rechargeAction();
 		}
 		
 		
-		if(!graph.isVertexSurveyed(myPosition)){
-			graph.setVertexAsSurveyed(myPosition);
-			unExplored.remove(myPosition);
-			return MarsUtil.surveyAction();
-		}
-			
+//		if(!graph.isVertexSurveyed(myPosition)){
+//			graph.setVertexAsSurveyed(myPosition);
+//			//unExplored.remove(myPosition);
+//			return MarsUtil.surveyAction();
+//		}
+		
+		graph.unExplored.remove(myPosition);
+		graph.unProbed.remove(myPosition);
+		
 		// Probe vertex if not probed
 		if(!graph.isVertexProbed(myPosition)){
 			graph.setVertexAsProbed(myPosition);
@@ -100,28 +122,26 @@ public class ExplorerAgent extends Agent {
 		}
 		
 		// Move from one vertex to another
-		if (!pathArray.isEmpty()) {
-			String nextVertex= pathArray.remove(0).name;
+		if (!myPathArray.isEmpty()) {
+			String nextVertex= myPathArray.remove(0).name;
 			return MarsUtil.gotoAction(nextVertex); 
 		}
 		
 		// Find path to nearest unexplored vertex
-		if (!unExplored.isEmpty()) {
-			
+		if (!graph.unProbed.isEmpty()) {
 			findPathToTheNearestVertex();
-			String nextVertex= pathArray.remove(0).name;
+			String nextVertex= myPathArray.remove(0).name;
 			return MarsUtil.gotoAction(nextVertex);
 		}
 		
 		return MarsUtil.rechargeAction();
 	}
 	
-	
 	private void findPathToTheNearestVertex(){
 		Vertex start = graph.getVertex(myPosition);
-		pathArray = PathFinder.FindPath(start, unExplored, graph);
-		String target = pathArray.get(pathArray.size()-1).name;
-		unExplored.remove(target);
+		myPathArray = PathFinder.FindPath(start, graph.unProbed, graph);
+		String target = myPathArray.get(myPathArray.size()-1).name;
+		graph.unProbed.remove(target);
 	}
 	
 	private void findPathToVertex(String goalVertex){
@@ -129,14 +149,15 @@ public class ExplorerAgent extends Agent {
 		HashSet<String> goal = new HashSet<String>();
 		goal.add(goalVertex);
 		
-		pathArray = PathFinder.FindPath(start, goal, graph);
-		String target = pathArray.get(pathArray.size()-1).name;
-		unExplored.remove(target);
+		myPathArray = PathFinder.FindPath(start, goal, graph);
+		String target = myPathArray.get(myPathArray.size()-1).name;
+		graph.unProbed.remove(target);
 		
 	}
 
 	@SuppressWarnings({ "deprecation" })
 	private void handleAllPercept() {
+		
 		Collection<Percept> percepts = getAllPercepts();
 
 		for (Percept p1 : percepts) {
@@ -154,6 +175,7 @@ public class ExplorerAgent extends Agent {
 				
 			}
 		}
+		
 		//In case of random fail, repeat last action
 		if(lastActionResult.equals("failed_random")){
 			lastActionFailed = true;
@@ -166,9 +188,9 @@ public class ExplorerAgent extends Agent {
 			}else{
 				lastActionObj = MarsUtil.skipAction();
 			}
-			printStringToFile("AgentID:"+agentID+" - "+lastAction+"("+lastActionParam+")","ExplorerAgent_RandomFail.txt");
-			// Force close method
-			return;
+			printStringToFile("Step:"+step+"AgentID:"+myAgentID+" - "+lastAction+"("+lastActionParam+")","ExplorerAgent_RandomFail.txt");
+			// Force close 
+			//return;
 		}
 		
 		
@@ -185,9 +207,9 @@ public class ExplorerAgent extends Agent {
 
 				if (lastActionRes.substring(0, 6).equals("failed")) {
 
-					printStringToFile("Step:"+step+"\tAgentID:"+agentID+" Position:" + myPosition
+					printStringToFile("Step:"+step+"\tAgentID:"+myAgentID+" Position:" + myPosition
 							+ "\tLastAction: " + lastAction+lastActionParam
-							+ "\tlastActionResult:" + lastActionRes,
+							+ "\t\t lastActionResult:" + lastActionRes,
 							"ExplorerAgent_FailedActions.txt");
 				}
 			}
@@ -196,7 +218,18 @@ public class ExplorerAgent extends Agent {
 						.toString());
 			}
 			else if (p1.getName().equals("energy")) {
-				energy = Integer.parseInt(p1.getParameters().get(0).toString());
+				myEnergy = Integer.parseInt(p1.getParameters().get(0).toString());
+			}
+			else if (p1.getName().equals("visibleEdge")) {
+				String vertexA = p1.getParameters().get(0).toString();
+				String vertexB = p1.getParameters().get(1).toString();
+				int edgeCost = 1;
+
+				graph.addEdge(vertexA, edgeCost, vertexB);
+
+				printStringToFile("Step: " + step + "\tExplore edge1: "
+						+ vertexA + "\t edge2: " + vertexB
+						+ "\t edgeCost: " + edgeCost, "ExplorerAgent_NoSurveyAction.txt");
 			}
 
 			else if (p1.getName().equals("surveyedEdge")) {
@@ -205,24 +238,17 @@ public class ExplorerAgent extends Agent {
 				int edgeCost = Integer.parseInt(p1.getParameters().get(2)
 						.toString());
 
-				if (!graph.hasVertex(vertexA)) {
-					unExplored.add(vertexA);
-				}
-				if (!graph.hasVertex(vertexB)) {
-					unExplored.add(vertexB);
-				}
 				graph.addEdge(vertexA, edgeCost, vertexB);
 
 				printStringToFile("Step: " + step + "\tSurvey edge1: "
 						+ vertexA + "\tSurvey edge2: " + vertexB
 						+ "\tSurvey edgeCost: " + edgeCost, "ExplorerAgent_SurveyAction.txt");
 			}
-			
 			else if (p1.getName().equals("probedVertex")) {
 				String vertex = p1.getParameters().get(0).toString();
 				int vertexWeight = Integer.parseInt(p1.getParameters().get(1).toString());
 				graph.setVertexWeight(vertex, vertexWeight);
-				printStringToFile("Step: " + step + "\tAgentID: "+agentID+"\tProbed vertex: " + vertex 
+				printStringToFile("Step: " + step + "\tAgentID: "+myAgentID+"\tProbed vertex: " + vertex 
 						+ "\tVertex Weight: " + vertexWeight, "ExplorerAgent_ProbeAction.txt");
 			}
 
@@ -242,7 +268,7 @@ public class ExplorerAgent extends Agent {
 	}
 	// For testing purposes
 	public void resetLogFiles(){
-		if(agentID==1)
+		if(myAgentID==1)
 			try {
 				new FileOutputStream("logfiles/ExplorerAgent_PathLog.txt").close();
 				new FileOutputStream("logfiles/ExplorerAgent_ProbeAction.txt").close();
@@ -260,7 +286,7 @@ public class ExplorerAgent extends Agent {
 	public void printLogFile() {
 		String status = "Step:"+step+"\tExplored vertices: " + graph.graph.size() + "\t"
 				+ "Explored edges: " + graph.edges.size() + "/" + numberOfEdges
-				+ "\t Unexplored vertices: " + unExplored.size() + "\tProbed Vertices: "+graph.probedVertices.Length();
+				+ "\t Unexplored vertices: " + graph.unExplored.size() + "\tProbed Vertices: "+graph.probedVertices.size();
 		printStringToFile(status, "ExplorerAgent_Status.txt");
 		
 	}

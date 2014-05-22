@@ -57,7 +57,7 @@ public class PriorityQueue
 			}	
 		}
 		
-		Collections.sort(this.vertices);
+		//Collections.sort(this.vertices);
 	}
 	
 	public Vertex getVertex(Vertex vertex)
